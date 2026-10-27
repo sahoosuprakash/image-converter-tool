@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Image Converter | ফ্রি ইমেজ কনভার্টার</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 600px; width: 100%; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); text-align: center; }
+    h1 { color: #1a73e8; margin-bottom: 8px; }
+    p { color: #555; margin-bottom: 24px; font-size: 14px; }
+    .upload-box { border: 2px dashed #ccd0d5; padding: 30px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; background: #fafbfc; display: block; }
+    .upload-box input { display: none; }
+    .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    select, button { padding: 12px 18px; font-size: 15px; border-radius: 6px; border: 1px solid #ccc; outline: none; }
+    button { background: #1a73e8; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    button:hover { background: #1557b0; }
+    button:disabled { background: #b0bec5; cursor: not-allowed; }
+    #downloadSection { display: none; margin-top: 20px; }
+    .ad-placeholder { width: 100%; height: 90px; background: #e9ecef; border: 1px dashed #adb5bd; display: flex; align-items: center; justify-content: center; color: #6c757d; font-size: 13px; margin: 20px 0; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <div class="ad-placeholder">Ad Banner (এখানে বিজ্ঞাপনের কোড বসবে)</div>
+
+  <div class="container">
+    <h1>Free Image Converter</h1>
+    <p>ব্রাউজারেই নিরাপদে ছবি কনভার্ট করুন — সম্পূর্ণ ফ্রি ও আনলিমিটেড</p>
+
+    <label class="upload-box" for="imageInput">
+      <span id="fileName">ক্লিক করে ছবি আপলোড করুন (JPG/PNG/WebP)</span>
+      <input type="file" id="imageInput" accept="image/*">
+    </label>
+
+    <div class="controls">
+      <select id="formatSelect">
+        <option value="image/png">PNG ফরম্যাটে</option>
+        <option value="image/jpeg">JPG ফরম্যাটে</option>
+        <option value="image/webp">WebP ফরম্যাটে</option>
+      </select>
+      <button id="convertBtn" disabled>কনভার্ট করুন</button>
+    </div>
+
+    <div id="downloadSection">
+      <div class="ad-placeholder">Download Ad Unit</div>
+      <a id="downloadLink"><button style="background: #28a745;">ছবি ডাউনলোড করুন</button></a>
+    </div>
+  </div>
+
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const fileName = document.getElementById('fileName');
+    const convertBtn = document.getElementById('convertBtn');
+    const formatSelect = document.getElementById('formatSelect');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadSection = document.getElementById('downloadSection');
+    const downloadLink = document.getElementById('downloadLink');
+
+    let loadedImage = null;
+
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      fileName.innerText = file.name;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          loadedImage = img;
+          convertBtn.disabled = false;
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    convertBtn.addEventListener('click', function() {
+      if (!loadedImage) return;
+
+      canvas.width = loadedImage.width;
+      canvas.height = loadedImage.height;
+
+      const format = formatSelect.value;
+      if (format === 'image/jpeg') {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      ctx.drawImage(loadedImage, 0, 0);
+
+      const ext = format === 'image/png' ? 'png' : (format === 'image/jpeg' ? 'jpg' : 'webp');
+      const convertedUrl = canvas.toDataURL(format, 0.92);
+
+      downloadLink.href = convertedUrl;
+      downloadLink.download = `converted-image.${ext}`;
+      downloadSection.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
